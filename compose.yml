@@ -1,0 +1,49 @@
+version: "2.1"
+services:
+  nginx-proxy:
+    image: docker.io/nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data/htpasswd:/etc/nginx/htpasswd
+      - ./data/conf.d:/etc/nginx/conf.d
+      - ./data/vhost.d:/etc/nginx/vhost.d
+      - ./data/html:/usr/share/nginx/html
+      - ./data/certs:/etc/nginx/certs:ro
+      - /run/podman/podman.sock:/tmp/docker.sock:ro
+    network_mode: bridge
+    restart: unless-stopped
+
+  acme-companion:
+    image: docker.io/nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    environment:
+      - DEFAULT_EMAIL=[EMAILFORSSLCERT]
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - ./data/htpasswd:/etc/nginx/htpasswd
+      - ./data/conf.d:/etc/nginx/conf.d
+      - ./data/vhost.d:/etc/nginx/vhost.d
+      - ./data/html:/usr/share/nginx/html
+      - ./data/certs:/etc/nginx/certs:rw
+      - ./data/acme:/etc/acme.sh
+      - /run/podman/podman.sock:/var/run/docker.sock:ro
+    network_mode: bridge
+    restart: unless-stopped
+
+  fava:
+    image: docker.io/yegle/fava
+    container_name: fava
+    environment:
+      - BEANCOUNT_FILE=/bean/main.bean
+      - FAVA_PORT=5010
+      - VIRTUAL_HOST=[YOURURLPLUSSUBDOMAINS]
+      - VIRTUAL_PORT=5010
+      - LETSENCRYPT_HOST=[YOURURLPLUSSUBDOMAINS]
+    expose:
+      - "5010"
+    volumes:
+      - ./data/bean:/bean
+    restart: unless-stopped

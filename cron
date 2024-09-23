@@ -1,0 +1,8 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
+MAILTO=root
+GPG_TTY=$(tty) # required for git-remote-gcrypt to work
+
+0 17 * * 1-5 root podman exec -t fava /app/bin/bean-price --update --update-rate=weekday /bean/main.bean >> /opt/data/bean/prices.bean
+
+*/5 * * * * root bash /opt/gitpush_cron.sh

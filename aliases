@@ -1,0 +1,7 @@
+export GPG_TTY=$(tty) # required for git-remote-gcrypt to work
+
+# Podman-compose specific commands
+alias dcup='podman-compose -f /opt/compose.yml up -d' #brings up all containers if one is not defined after dcup
+alias dcdown='podman-compose -f /opt/compose.yml stop' #brings down all containers if one is not defined after dcdown
+alias dcpull='podman-compose -f /opt/compose.yml pull' #pulls all new images is specified after dcpull
+alias dclogs='podman-compose -f /opt/compose.yml logs -tf --tail=\"50\" '
